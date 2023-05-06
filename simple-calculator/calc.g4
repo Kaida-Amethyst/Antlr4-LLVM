@@ -1,21 +1,28 @@
 grammar calc;
 
-program: expr;
+program: prog;
 
-expr : mul '+' mul 
-     | mul '-' mul
+prog: (with_stmt ':')? expr ';' ;
+
+with_stmt : 'with' Var (',' Var )* ;
+
+expr : mul ('+' | '-') mul
      | mul
      ;
 
-mul  : pri '*' pri
-     | pri '/' pri
-     | pri
+mul  : primary ('*' | '/') primary
+     | primary
      ;
 
-pri  : NUM 
-     | '(' expr ')' 
-     ;
+primary : Var
+        | Num
+        | '(' expr ')'
+        ;
 
-NUM  : [0-9]+;
+Num : [0-9]+;
 
-WS   : [ \t\r\n]+ -> skip;
+Var : [a-zA-Z]+;
+
+WS  : [ \t\r\n]+ -> skip;
+
+

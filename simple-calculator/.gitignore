@@ -1,0 +1,7 @@
+a.out
+*.interp
+*.tokens
+*.o
+*.cpp
+*.h
+tmp
