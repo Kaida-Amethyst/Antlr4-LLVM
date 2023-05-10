@@ -8,6 +8,10 @@
 
 // #include <llvm/IR/LLVMContext.h>
 // #include <llvm/IR/Module.h>
+// #include <llvm/IR/Type.h>
+// #include <llvm/IR/Value.h>
+// #include <llvm/IR/IRBuilder.h>
+// #include <llvm/IR/Function.h>
 
 // using namespace llvm;
 
@@ -17,14 +21,30 @@ public:
   // llvm::LLVMContext context;
   // llvm::Module *calc_mod;
   // Type *int_type;
+  // FunctionType *calc_func_type;
   // Function *calc_func;
   // BasicBlock *entry_block;
   // IRBuilder<> *builder;
   // std::map<std::string, Value *> symbol_table;
 
-  virtual std::any visitProgram(calcParser::ProgramContext *ctx) override {
+  ProgramVisitor() {
     // calc_mod = new Module("calc", context);
     // int_type = Type::getInt32Ty(context);
+    // calc_func_type = nullptr;
+    // calc_func = nullptr;
+    // builder = new IRBuilder<>(context);
+    // entry_block = nullptr;
+    // builder = nullptr;
+  }
+
+  // llvm::Module compile() {
+  //   visitProgram();
+  //   // create main
+  //   return calc_mod;
+  // }
+
+  virtual std::any visitProgram(calcParser::ProgramContext *ctx) override {
+    // visitProg(ctx->prog());
     return visitChildren(ctx);
   }
 
@@ -43,6 +63,7 @@ public:
       // false), Function::ExternalLinkage, "calc", calc_mod);
       // visitWith_stmt(ctx->with_stmt());
       // entry_block = BasicBlock::Create(context, "entry", calc_func);
+      // builder.SetInsertPoint(entry_block);
       // Then visit expr
       // visitExpr(ctx->expr());
     }
@@ -68,7 +89,38 @@ public:
   }
 
   virtual std::any visitExpr(calcParser::ExprContext *ctx) override {
+    // check expr is nullptr
+    // if ctx->expr() is not null
+    // visitExpr(ctx->expr());
+    // visitMul(ctx->mul());
+    // if op->getText() == "+"
+    //   builder->CreateAdd()
+    // else if op->getText() == "-"
+    //   builder->CreateSub()
     return visitChildren(ctx);
+  }
+
+  virtual std::any visitMul(calcParser::MulContext *ctx) override {
+    // check mul is nullptr
+    // if ctx->mul() is not null
+    // visitMul(ctx->mul());
+    // visitPrimary(ctx->primary());
+    // if op->getText() == "*"
+    //  builder->CreateMul()
+    // else if op->getText() == "/"
+    //  builder->CreateDiv()
+    return visitChildren(ctx);
+  }
+
+  virtual std::any visitPrimary(calcParser::PrimaryContext *context) override {
+    // Three cases: Var, Int, '(' expr ')'
+    // if ctx->expr() is not null
+    //   visitExpr(ctx->expr());
+    // else if ctx->Num() is not null
+    //  return std::stoi(ctx->Num()->getText());
+    // else if ctx->Var() is not null
+    //  return symbol_table[ctx->Var()->getText()];
+    return visitChildren(context);
   }
 };
 
