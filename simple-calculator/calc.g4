@@ -6,11 +6,11 @@ prog: (with_stmt ':')? expr ';' ;
 
 with_stmt : 'with' Var (',' Var )* ;
 
-expr : mul ('+' | '-') mul
+expr : expr ( op=('+' | '-') mul )
      | mul
      ;
 
-mul  : primary ('*' | '/') primary
+mul  : mul ( op=('*' | '/') primary )
      | primary
      ;
 
