@@ -6,121 +6,137 @@
 #include <iostream>
 #include <string_view>
 
-// #include <llvm/IR/LLVMContext.h>
-// #include <llvm/IR/Module.h>
-// #include <llvm/IR/Type.h>
-// #include <llvm/IR/Value.h>
-// #include <llvm/IR/IRBuilder.h>
-// #include <llvm/IR/Function.h>
+#include <llvm/IR/Function.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/IR/Value.h>
+#include <llvm/Support/raw_ostream.h>
 
-// using namespace llvm;
+using llvm::BasicBlock;
+using llvm::Function;
+using llvm::FunctionType;
+using llvm::IRBuilder;
+using llvm::LLVMContext;
+using llvm::Module;
+using llvm::Type;
+using llvm::Value;
 
 class ProgramVisitor : public calcBaseVisitor {
 
 public:
-  // llvm::LLVMContext context;
-  // llvm::Module *calc_mod;
-  // Type *int_type;
-  // FunctionType *calc_func_type;
-  // Function *calc_func;
-  // BasicBlock *entry_block;
-  // IRBuilder<> *builder;
-  // std::map<std::string, Value *> symbol_table;
+  LLVMContext context;
+  Module *calc_mod;
+  Type *int_type;
+  FunctionType *calc_func_type;
+  Function *calc_func;
+  BasicBlock *entry_block;
+  IRBuilder<> *builder;
+  std::map<std::string, Value *> symbol_table;
 
   ProgramVisitor() {
-    // calc_mod = new Module("calc", context);
-    // int_type = Type::getInt32Ty(context);
-    // calc_func_type = nullptr;
-    // calc_func = nullptr;
-    // builder = new IRBuilder<>(context);
-    // entry_block = nullptr;
-    // builder = nullptr;
+    calc_mod = new Module("calc", context);
+    int_type = Type::getInt32Ty(context);
+    calc_func_type = nullptr;
+    calc_func = nullptr;
+    builder = new IRBuilder<>(context);
+    entry_block = nullptr;
   }
 
-  // llvm::Module compile() {
-  //   visitProgram();
-  //   // create main
-  //   return calc_mod;
-  // }
+  ~ProgramVisitor() {
+    delete calc_mod;
+    delete builder;
+  }
+
+  // llvm::Module compile() {}
+
+  void printIR() { calc_mod->print(llvm::outs(), nullptr); }
 
   virtual std::any visitProgram(calcParser::ProgramContext *ctx) override {
-    // visitProg(ctx->prog());
+    visitProg(ctx->prog());
+    // then create main function
+    // return calc_mod;
     return visitChildren(ctx);
   }
 
   virtual std::any visitProg(calcParser::ProgContext *ctx) override {
-    // if it has with statement
-    // ctx->with_stmt() is not null
-    if (nullptr == ctx->with_stmt()) {
-      // calc_func = Function::Create(FunctionType::get(int_type, {}, false),
+    if (!ctx->with_stmt()) {
+      calc_func_type = FunctionType::get(int_type, {}, false);
     } else {
-      // get number of variables from with statement
-      // std::any num_of_vars = ctx->with_stmt()->Var().size();
-      // int n = std::any_cast<int>(num_of_vars);
-      // if (n == 0) throw error
-      // auto arg_types = std::vector<Type *>(n, int_type);
-      // calc_func = Function::Create(FunctionType::get(int_type, arg_types,
-      // false), Function::ExternalLinkage, "calc", calc_mod);
-      // visitWith_stmt(ctx->with_stmt());
-      // entry_block = BasicBlock::Create(context, "entry", calc_func);
-      // builder.SetInsertPoint(entry_block);
-      // Then visit expr
-      // visitExpr(ctx->expr());
+      int n = ctx->with_stmt()->Var().size();
+      // if (0 == n) error, but suppose it's not 0 temperaily
+      auto func_args = std::vector<Type *>(n, int_type);
+      calc_func_type = FunctionType::get(int_type, func_args, false);
     }
-    return visitChildren(ctx);
+    calc_func = Function::Create(calc_func_type, Function::ExternalLinkage,
+                                 "calc", calc_mod);
+    visitWith_stmt(ctx->with_stmt());
+    entry_block = BasicBlock::Create(context, "entry", calc_func);
+    builder->SetInsertPoint(entry_block);
+    auto r = visitExpr(ctx->expr());
+    Value *ret = std::any_cast<Value *>(r);
+    builder->CreateRet(ret);
+
+    return nullptr;
   }
 
   virtual std::any visitWith_stmt(calcParser::With_stmtContext *ctx) override {
+    if (ctx == nullptr)
+      return nullptr;
     // if (ctx->Var().size() == 0) throw error
-    // auto arg_iter = calc_func->arg_begin();
-    // for (auto var : ctx->Var()) {
-    //   std::string varname = var->getText();
-    //   std::cout << varname << std::endl;
-    //   // if (symbol_table.find(varname) != symbol_table.end()) { // varname
-    //   is
-    //   // not unique
-    //   //   // throw error
-    //   // }
-    //   // // Insert a value into the symbol table. the value is a parameter of
-    //   // the calc function symbol_table[varname] = arg_iter++;
-    // }
-    // return ctx->Var().size();
-    return visitChildren(ctx);
+    auto arg_iter = calc_func->arg_begin();
+    for (auto var : ctx->Var()) {
+      std::string varname = var->getText();
+      // if (symbol_table.find(varname) != symbol_table.end()) { // varname
+      //   std::cerr << "var name is not unique" << std::endl;
+      // }
+      symbol_table[varname] = arg_iter++;
+    }
+    return nullptr;
   }
 
   virtual std::any visitExpr(calcParser::ExprContext *ctx) override {
-    // check expr is nullptr
-    // if ctx->expr() is not null
-    // visitExpr(ctx->expr());
-    // visitMul(ctx->mul());
-    // if op->getText() == "+"
-    //   builder->CreateAdd()
-    // else if op->getText() == "-"
-    //   builder->CreateSub()
-    return visitChildren(ctx);
+    Value *res = nullptr;
+    if (ctx->expr()) {
+      Value *l = std::any_cast<Value *>(visitExpr(ctx->expr()));
+      Value *r = std::any_cast<Value *>(visitMul(ctx->mul()));
+      if (ctx->op->getText() == "+") {
+        res = builder->CreateAdd(l, r);
+      } else if (ctx->op->getText() == "-") {
+        res = builder->CreateSub(l, r);
+      }
+    } else {
+      res = std::any_cast<Value *>(visitMul(ctx->mul()));
+    }
+    return res;
   }
 
   virtual std::any visitMul(calcParser::MulContext *ctx) override {
-    // check mul is nullptr
-    // if ctx->mul() is not null
-    // visitMul(ctx->mul());
-    // visitPrimary(ctx->primary());
-    // if op->getText() == "*"
-    //  builder->CreateMul()
-    // else if op->getText() == "/"
-    //  builder->CreateDiv()
+    Value *res = nullptr;
+    if (ctx->mul()) {
+      Value *l = std::any_cast<Value *>(visitMul(ctx->mul()));
+      Value *r = std::any_cast<Value *>(visitPrimary(ctx->primary()));
+      if (ctx->op->getText() == "*") {
+        res = builder->CreateMul(l, r);
+      } else if (ctx->op->getText() == "/") {
+        res = builder->CreateSDiv(l, r);
+      }
+    } else {
+      res = std::any_cast<Value *>(visitPrimary(ctx->primary()));
+    }
+    return res;
     return visitChildren(ctx);
   }
 
-  virtual std::any visitPrimary(calcParser::PrimaryContext *context) override {
-    // Three cases: Var, Int, '(' expr ')'
-    // if ctx->expr() is not null
-    //   visitExpr(ctx->expr());
-    // else if ctx->Num() is not null
-    //  return std::stoi(ctx->Num()->getText());
-    // else if ctx->Var() is not null
-    //  return symbol_table[ctx->Var()->getText()];
-    return visitChildren(context);
+  virtual std::any visitPrimary(calcParser::PrimaryContext *ctx) override {
+    if (ctx->Num()) {
+      int n = std::stoi(ctx->Num()->getText());
+      return builder->getInt32(n);
+    } else if (ctx->Var()) {
+      return symbol_table.at(ctx->Var()->getText());
+    }
+    return visitExpr(ctx->expr());
   }
 };
 
@@ -138,23 +154,25 @@ int main(int argc, char **argv) {
   calcLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
 
-  tokens.fill();
+  // tokens.fill();
 
   // Print tokens
-  for (auto token : tokens.getTokens()) {
-    std::cout << token->toString() << std::endl;
-  }
+  // for (auto token : tokens.getTokens()) {
+  //   std::cout << token->toString() << std::endl;
+  // }
 
   // Create parser
   calcParser parser(&tokens);
   antlr4::tree::ParseTree *tree = parser.program();
 
   // to string
-  std::cout << tree->toStringTree(&parser) << std::endl;
+  // std::cout << tree->toStringTree(&parser) << std::endl;
 
   // Create visitor
   ProgramVisitor visitor;
   std::any result = visitor.visit(tree);
+
+  visitor.printIR();
 
   return 0;
 }
