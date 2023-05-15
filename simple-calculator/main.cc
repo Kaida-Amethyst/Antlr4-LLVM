@@ -132,7 +132,8 @@ public:
   virtual std::any visitPrimary(calcParser::PrimaryContext *ctx) override {
     if (ctx->Num()) {
       int n = std::stoi(ctx->Num()->getText());
-      return builder->getInt32(n);
+      Value *v = builder->getInt32(n);
+      return v;
     } else if (ctx->Var()) {
       return symbol_table.at(ctx->Var()->getText());
     }
@@ -154,19 +155,19 @@ int main(int argc, char **argv) {
   calcLexer lexer(&input);
   antlr4::CommonTokenStream tokens(&lexer);
 
-  // tokens.fill();
+  tokens.fill();
 
   // Print tokens
-  // for (auto token : tokens.getTokens()) {
-  //   std::cout << token->toString() << std::endl;
-  // }
+  for (auto token : tokens.getTokens()) {
+    std::cout << token->toString() << std::endl;
+  }
 
   // Create parser
   calcParser parser(&tokens);
   antlr4::tree::ParseTree *tree = parser.program();
 
   // to string
-  // std::cout << tree->toStringTree(&parser) << std::endl;
+  std::cout << tree->toStringTree(&parser) << std::endl;
 
   // Create visitor
   ProgramVisitor visitor;
