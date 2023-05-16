@@ -54,10 +54,10 @@ public:
   void printIR() { calc_mod->print(llvm::outs(), nullptr); }
 
   virtual std::any visitProgram(calcParser::ProgramContext *ctx) override {
-    visitProg(ctx->prog());
     // then create main function
     // return calc_mod;
-    return visitChildren(ctx);
+    //   return visitChildren(ctx);
+    return visitProg(ctx->prog());
   }
 
   virtual std::any visitProg(calcParser::ProgContext *ctx) override {
@@ -126,7 +126,6 @@ public:
       res = std::any_cast<Value *>(visitPrimary(ctx->primary()));
     }
     return res;
-    return visitChildren(ctx);
   }
 
   virtual std::any visitPrimary(calcParser::PrimaryContext *ctx) override {
@@ -158,9 +157,9 @@ int main(int argc, char **argv) {
   tokens.fill();
 
   // Print tokens
-  for (auto token : tokens.getTokens()) {
-    std::cout << token->toString() << std::endl;
-  }
+  // for (auto token : tokens.getTokens()) {
+  //   std::cout << token->toString() << std::endl;
+  // }
 
   // Create parser
   calcParser parser(&tokens);
