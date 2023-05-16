@@ -49,5 +49,6 @@
 
 ## Preview
 
-![](./simple-calculator/Chapters/Chapter-1-Installation.md)
-![](./simple-calculator/Chapters/Chapter-2-Basic-Workflow-Part-I.md)
+![](./Blogs/Chapter-1-Installation.md)
+
+![](./Blogs/Chapter-2-Basic-Workflow-Part-I.md)
