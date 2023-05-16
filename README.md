@@ -46,3 +46,8 @@
 - [ ] 稍微复杂一点的语言，LLVM，Part II
 - [ ] 稍微复杂一点的语言，LLVM，Part III
 - [ ] 稍微复杂一点的语言，LLVM，Part IV
+
+## Preview
+
+![](./simple-calculator/Chapters/Chapter-1-Installation.md)
+![](./simple-calculator/Chapters/Chapter-2-Basic-Workflow-Part-I.md)
