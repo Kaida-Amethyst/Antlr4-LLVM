@@ -31,12 +31,14 @@
 
 ## Roadmap
 
-- [ ] 环境搭建
+- [x] 环境搭建
 - [ ] 编译原理快速入门
+- [x] 超级简单的calc语言，Basic Workflow Overview
+- [ ] 超级简单的calc语言，Basic Workflow full view
 - [ ] 超级简单的calc语言，Antlr4，词法分析与语法分析
 - [ ] 超级简单的calc语言，CMake，搭建构建系统
 - [ ] 超级简单的calc语言，LLVM，生成后端代码
-- [ ] 稍微复杂一点的语言，Antlr4, Part I
+- [ ] 稍微复杂一点的语言(没想好名称)，Antlr4, Part I
 - [ ] 稍微复杂一点的语言，Antlr4, Part II
 - [ ] 稍微复杂一点的语言，Antlr4, Part III
 - [ ] 稍微复杂一点的语言，CMake
