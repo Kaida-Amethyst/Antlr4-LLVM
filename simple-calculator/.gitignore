@@ -5,3 +5,8 @@ a.out
 *.cpp
 *.h
 tmp
+.cache
+*.json
+*.a
+*.so
+calc

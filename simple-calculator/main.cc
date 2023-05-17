@@ -23,6 +23,8 @@ using llvm::Module;
 using llvm::Type;
 using llvm::Value;
 
+#include "listener.hpp"
+
 class ProgramVisitor : public calcBaseVisitor {
 
 public:
@@ -167,6 +169,10 @@ int main(int argc, char **argv) {
 
   // to string
   std::cout << tree->toStringTree(&parser) << std::endl;
+
+  // Create listener
+  ProgramListener listener(source_code);
+  antlr4::tree::ParseTreeWalker::DEFAULT.walk(&listener, tree);
 
   // Create visitor
   ProgramVisitor visitor;
