@@ -29,6 +29,12 @@
 - LLVM 12以上的版本
 - CMake 3.20
 
+## Blogs
+
+[Chapter-1-Installation](./Blogs/Chapter-1-Installation.md)
+
+[Chapter-2-Basic-Workflow-Part-I](./Blogs/Chapter-2-Basic-Workflow-Part-I.md)
+
 ## Roadmap
 
 - [x] 环境搭建
@@ -47,8 +53,4 @@
 - [ ] 稍微复杂一点的语言，LLVM，Part III
 - [ ] 稍微复杂一点的语言，LLVM，Part IV
 
-## Preview
 
-![](./Blogs/Chapter-1-Installation.md)
-
-![](./Blogs/Chapter-2-Basic-Workflow-Part-I.md)
